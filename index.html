@@ -1,0 +1,119 @@
+<!DOCTYPE>
+
+<html>
+
+	<head>
+		<title>cytoscape-graphml.js demo</title>
+
+		<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1">
+
+
+ 		<script src="https://unpkg.com/cytoscape/dist/cytoscape.min.js"></script>
+		<script   src="https://code.jquery.com/jquery-3.0.0.min.js"   integrity="sha256-JmvOoLtYsmqlsWxa7mDSLMwa6dZ9rrIdtrrVYRnDRH0="   crossorigin="anonymous"></script>
+
+		<!-- for testing with local version of cytoscape.js -->
+		<!--<script src="../cytoscape.js/build/cytoscape.js"></script>-->
+
+		<script src="js/cytoscape-graphml.js"></script>
+		<script src="js/gif.js"></script>
+
+		<style>
+			body {
+				font-family: helvetica neue, helvetica, liberation sans, arial, sans-serif;
+				font-size: 14px;
+			}
+
+			#cy {
+				position: absolute;
+				left: 0;
+				top: 0;
+				bottom: 0;
+				right: 0;
+				z-index: 999;
+			}
+
+			h1 {
+				opacity: 0.5;
+				font-size: 1em;
+				font-weight: bold;
+			}
+		</style>
+
+		<script>
+			document.addEventListener('DOMContentLoaded', function(){
+
+var gif = new GIF({
+				  workers: 2,
+				  quality: 10
+});
+
+var noOfSteps = 1500;
+drawCurrentGraph(0);
+
+function drawCurrentGraph(step) {
+				fetch("data/graph"+step+".gml")
+				.then( response => response.text() )
+				.then( text => {
+					console.log(text);
+
+				var graphStr = text;
+
+				var cy = window.cy = cytoscape({
+					container: document.getElementById('cy'),
+
+					style: [
+						{
+							selector: 'node',
+							style: {
+								'content': 'data(id)'
+							}
+						},
+
+						{
+							selector: 'edge',
+							style: {
+								'target-arrow-shape': 'triangle'
+							}
+						},
+
+						{
+							selector: ':selected',
+							style: {
+
+							}
+						}
+					],
+					ready: function () {
+																						this.graphml({layoutBy: 'cose'});
+																						this.graphml(graphStr);
+																						console.log(this.graphml());
+					}
+				});
+				} )
+
+				setTimeout(function(){
+					if(step < noOfSteps) {
+						step+=+10;
+						//gif.addFrame(window.cy);
+						// send image to gif here
+						drawCurrentGraph(step);
+					}
+					else gif.render();
+				}, 40);
+
+
+		}
+
+
+
+			});
+		</script>
+	</head>
+
+	<body>
+
+		<div id="cy"></div>
+
+	</body>
+
+</html>
